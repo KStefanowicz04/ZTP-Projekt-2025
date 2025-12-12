@@ -1,0 +1,304 @@
+@startuml
+
+
+
+' ENUMY
+enum Priorytet {
+  NISKI
+  NORMALNY
+  WYSOKI
+}
+
+
+
+' KLASY
+class System {
+    - menedżerNotatek: MenedżerNotatek
+    - menedżerZadań: MenedżerZadań
+
+    + System()
+    + UtwórzNotatkę(tytuł: String, treść: String, tagi: List<Tag>): Notatka
+    + UtwórzZadanie(tytuł: String, treść: String, priorytet: Priorytet, termin: Date, tagi: List<Tag>): Zadanie
+}
+
+' Abstrakcyjna Fabryka - dziedziczą z niej dwie fabryki Notatek i Zadań
+abstract class FabrykaWpisów <<Factory Method>> {
+    # FabrykaWpisów()
+    + UtwórzWpis()
+}
+
+' Interfejs Wpisu - potrzebny do dekoratorów
+interface IWpis {
+    WypiszInformacje(): String
+}
+
+' Wpis - klasa abstrakcyjna z której dziedziczą Notatka i Zadanie.
+' Ma ID, tytuł, treść, timestampy, tagi.
+' Można je edytować, Tagi można dodawać i usuwać.
+abstract class Wpis {
+    - id: int
+    - tytuł: String
+    - treść: String
+    - dataUtworzenia: Date
+    - dataModyfikacji: Date
+    - tagi: List<Tag>
+
+    # Wpis(tytuł: String, treść: String) : IWpis
+    + Edytuj(tytuł: String, treść: String): void
+    + DodajTag(tag: Tag): void
+    + UsuńTag(tag: Tag): void
+    + WypiszInformacje(): String
+}
+
+
+' Menedżer notatek - tworzy, usuwa, wyszukuje notatki.
+' Wyszukać można po ID, po treści notatki (w tym po tytule, to jedna funkcja!),
+' po tagach danej notatki.
+' Wypisanie notatki odbywa się poprzez ToString() w notatce, więc tu będzie void
+class MenedżerNotatek <<Singleton>> {
+    - instancja: MenedżerNotatek
+    - fabryka: FabrykaNotatek
+    - notatki: List<Notatka>
+
+    - MenedżerNotatek()
+    + UtwórzNotatkęPrzezFabrykę(tytuł: String, treść: String, tagi: List<Tag>): void
+    + UsuńNotatkę(notatka: Notatka): void
+        'po podaniu notatki-obiektu, metoda wzywa ToString() danej notatki i wypisuje jej zawartość
+    + WypiszNotatkę(notatka: Notatka): void
+        'wyszukiwanie po ID
+    + WyszukajNotatki(id: int): Notatka
+        'wyszukiwanie po treści - zawiera jednego z podanych Stringów
+    + WyszukajNotatki(zawiera: List<String>): List<Notatka>
+        'wyszukiwanie po Tagu
+    + WyszukajNotatki(tag: Tag): List<Notatka>
+    + GetterInstancji(): MenedżerNotatek
+}
+
+' Fabryka Notatek - dziedziczy z abstrakcyjnej FabrykiWpisów
+class FabrykaNotatek <<Factory Method>> {
+    + FabrykaNotatek() : FabrykaWpisów
+    + UtwórzWpis(tytuł: String, treść: String, tagi: List<Tag>): Notatka <<override>>
+}
+
+' Dziedziczy z klasy Wpis
+class Notatka {
+    - ulubiona: bool
+
+    + Notatka(tytuł: String, treść: String) : base(tytuł: String, treść: String)
+    + UstawUlubione(ustawienie: bool): void
+    + WypiszInformacje(): String <<override>>
+}
+
+' Menedżer zadań - tworzy, usuwa, wyszukuje zadania.
+' Wyszukać można po ID, po treści notatki (w tym po tytule, to jedna funkcja!),
+' po tagach danej notatki
+class MenedżerZadań <<Singleton>> {
+    - instancja: MenedżerZadań
+    - fabryka: FabrykaZadań
+    - zadania: List<Zadanie>
+
+    - MenedżerZadań()
+    + UtwórzZadaniePrzezFabrykę(tytuł: String, treść: String, priorytet: Priorytet, termin: Date, tagi: List<Tag>): void
+    + UsuńZadanie(zadanie: Zadanie)
+    + WypiszZadanie(): void
+    + SzukajZadań(...)
+    + OznaczZadaniaJakoWykonane(zadania: List<Zadanie>): void
+    + WybierzZaległe(): List<Zadanie>
+    + GetterInstancji(): MenedżerZadań
+}
+
+' Fabryka Zadań - dziedziczy z abstrakcyjnej FabrykiWpisów
+class FabrykaZadań <<Factory Method>> {
+    + FabrykaZadań() : FabrykaWpisów
+    + UtwórzWpis(tytuł: String, treść: String, priorytet: Priorytet, termin: Date, tagi: List<Tag>): Zadanie <<override>>
+}
+
+' Dziedziczy z klasy Wpis
+class Zadanie {
+        ' Obecny stan:
+    - stan: StanZadania
+    - priorytet: Priorytet
+    - termin: Date
+
+    + Zadanie(stan: StanZadania, priorytet: Priorytet, termin: Date, stan: StanZadania) : base(tytuł: String, treść: String)
+    + Edytuj(tytuł: String, treść: String, priorytet: Priorytet, termin: Date): void <<override>>
+    + OznaczJakoWykonane(): void
+    + SprawdźCzyZalegle(): bool
+    + WypiszInformacje(): String <<override>>
+    + ZmieńStan(stan: StanZadania): void
+        ' Stany:
+    + StanWykonane(): void
+    + StanAktywne(): void
+    + StanZaległe(): void
+}
+
+' Builder klasy Zadanie - interfejs
+interface IZadanieBuilder {
+    + UstawTytuł(tytuł: String): ZadanieBuilder
+    + UstawTreść(treść: String): ZadanieBuilder
+    + UstawStan(stan: StanZadania): ZadanieBuilder
+    + UstawPriorytet(priorytet: Priorytet): ZadanieBuilder
+    + UstawTermin(termin: Date): ZadanieBuilder
+    + UstawTagi(tagi: List<Tag>): ZadanieBuilder
+}
+
+' Implementacja Buildera
+class ZadanieBuilder {
+    - tytuł: String
+    - treść: String
+    - stan: StanZadania
+    - priorytet: Priorytet
+    - termin: Date
+    - tagi: List<Tag>
+
+    + ZadanieBuilder() : IZadanieBuilder
+    + UstawTytuł(tytuł: String): ZadanieBuilder
+    + UstawTreść(treść: String): ZadanieBuilder
+    + UstawStan(stan: StanZadania): ZadanieBuilder
+    + UstawPriorytet(priorytet: Priorytet): ZadanieBuilder
+    + UstawTermin(termin: Date): ZadanieBuilder
+    + UstawTagi(tagi: List<Tag>): ZadanieBuilder
+    + Build(): Zadanie
+}
+
+
+
+' Menedżer tagów tworzy je, usuwa, ma listę wszystkich unikalnych tagów.
+class MenedżerTagów <<Singleton>> {
+    - tagi: List<Tag>
+
+    - MenedżerTagów()
+    + UtwórzTag(): void
+    + UsuńTag(): void
+    + WypiszTagi(): void
+}
+
+' Tagi mają listy Notatek i Zadań do których są przypisane.
+' Jeden tag może zostać przypisany do wielu Notatek i Zadań
+class Tag {
+    - nazwa: String
+    - notatki: List<Notatka>
+    - zadania: List<Zadanie>
+
+    + Tag(nazwa: String)
+}
+
+' DEKORATORY
+' Bazowy dekorator abstrakcyjny - pozostałe dekoratory z niego dziedziczą
+abstract class DekoratorWpisów {
+    # wpis: IWpis
+
+    # DekoratorWpisów(wpis: IWpis): IWpis
+    + WypiszInformacje(): String
+}
+
+' Konkretny dekorator wypisujący Tagi danego Wpisu (Notatki/Zadania)
+class DekoratorTagowy {
+    + DekoratorTagowy(wpis: IWpis) : base(wpis)
+    + WypiszInformacje(): String <<override>>
+}
+
+
+' Abstrakcyjny dekorator działający tylko dla Zadań
+abstract class DekoratorZadań {
+    # zadanie: Zadanie
+
+    # DekoratorZadań(zadanie: Zadanie) : base(zadanie)
+}
+
+' Konkretny dekorator działający tylko dla Zadań - dodaje Stan do WypiszInformacje()
+class DekoratorStanowy {
+    - stan: StanZadania
+
+    + DekoratorStanowy(zadanie: Zadanie, stan: StanZadania) : base(zadanie)
+    + WypiszInformacje(): String <<override>>
+}
+
+
+' STANY
+' Dostępne stany dla Zadanie
+interface StanZadania {
+    + wykonane(zadanie: Zadanie)
+    + aktywne(zadanie: Zadanie)
+    + zaległe(zadanie: Zadanie)
+}
+
+' Konkretne stany 
+class StanWykonane {
+    + wykonane(): void
+    + aktywne(): void
+    + zaległe(): void
+}
+class StanAktywne {
+    + wykonane(): void
+    + aktywne(): void
+    + zaległe(): void
+}
+class StanZaległe {
+    + wykonane(): void
+    + aktywne(): void
+    + zaległe(): void
+}
+
+
+
+' RELACJE
+System ..> MenedżerNotatek : używa
+System ..> MenedżerZadań : używa
+
+' Połączenie między Menedżerami a ich obiektami (kompozycja)
+MenedżerNotatek "1" *-- "0..*" Notatka
+MenedżerZadań "1" *-- "0..*" Zadanie
+MenedżerTagów "1" *-- "0..*" Tag
+
+' Wpis dziedziczy po Interfejsie IWpis
+IWpis <|-- Wpis
+
+' Zadanie i Notatka dziedziczą z klasy Wpis
+Wpis <|-- Notatka : dziedziczy
+Wpis <|-- Zadanie : dziedziczy
+
+' Konkretne Fabryki Notatek i Zadań dziedziczą z abstrakcyjnej FabrykiWpisów
+FabrykaWpisów <|-- FabrykaNotatek : dziedziczy
+FabrykaWpisów <|-- FabrykaZadań : dziedziczy
+
+' Połączenie Fabryk i ich produktów
+FabrykaNotatek ..> Notatka : tworzy
+FabrykaZadań ..> Zadanie : tworzy
+
+' Połączenie Fabryk z Menedżerami
+MenedżerNotatek ..> FabrykaNotatek : korzysta
+MenedżerZadań ..> FabrykaZadań : może używać
+
+' Połączenie tagów i Notatek/Zadań
+Notatka "0..*" -- "0..*" Tag
+Zadanie "0..*" -- "0..*" Tag
+
+' Enumerator
+Zadanie ..> Priorytet : używa
+
+' DEKORATORY
+' Abstrakcyjny DekoratorWpisów dziedziczy po Wpisie
+Wpis <|-- DekoratorWpisów : dziedziczy
+' Konkretny DekoratorTagowy dziedziczy po ogólnym DekoratorzeWpisów
+DekoratorWpisów <|-- DekoratorTagowy : dziedziczy
+' Ogólny DekoratorZadań dziedziczy po ogólnym DekoratorzeWpisów
+DekoratorWpisów <|-- DekoratorZadań : dziedziczy
+' Konkretny DekoratorStanowy dziedziczy po ogólnym DekoratorZadań
+DekoratorZadań <|-- DekoratorStanowy : dziedziczy
+
+
+' STANY
+' Możliwe stany
+Zadanie <|.. StanAktywne
+Zadanie <|.. StanWykonane
+Zadanie <|.. StanZaległe
+Zadanie --> StanZadania : ma
+
+' BUILDER
+IZadanieBuilder <|-- ZadanieBuilder
+ZadanieBuilder --> Zadanie : "buduje"
+MenedżerZadań ..> ZadanieBuilder : "może używać"
+
+
+@enduml
