@@ -124,7 +124,7 @@ class Zadanie {
 }
 
 ' Builder klasy Zadanie - interfejs
-interface IZadanieBuilder {
+interface IZadanieBuilder <<Builder>> {
     + UstawTytuł(tytuł: String): ZadanieBuilder
     + UstawTreść(treść: String): ZadanieBuilder
     + UstawStan(stan: StanZadania): ZadanieBuilder
@@ -134,7 +134,7 @@ interface IZadanieBuilder {
 }
 
 ' Implementacja Buildera
-class ZadanieBuilder {
+class ZadanieBuilder <<Builder>> {
     - tytuł: String
     - treść: String
     - stan: StanZadania
@@ -176,7 +176,7 @@ class Tag {
 
 ' DEKORATORY
 ' Bazowy dekorator abstrakcyjny - pozostałe dekoratory z niego dziedziczą
-abstract class DekoratorWpisów {
+abstract class DekoratorWpisów <<Dekorator>> {
     # wpis: IWpis
 
     # DekoratorWpisów(wpis: IWpis): IWpis
@@ -184,21 +184,21 @@ abstract class DekoratorWpisów {
 }
 
 ' Konkretny dekorator wypisujący Tagi danego Wpisu (Notatki/Zadania)
-class DekoratorTagowy {
+class DekoratorTagowy <<Dekorator>> {
     + DekoratorTagowy(wpis: IWpis) : base(wpis)
     + WypiszInformacje(): String <<override>>
 }
 
 
 ' Abstrakcyjny dekorator działający tylko dla Zadań
-abstract class DekoratorZadań {
+abstract class DekoratorZadań <<Dekorator>> {
     # zadanie: Zadanie
 
     # DekoratorZadań(zadanie: Zadanie) : base(zadanie)
 }
 
 ' Konkretny dekorator działający tylko dla Zadań - dodaje Stan do WypiszInformacje()
-class DekoratorStanowy {
+class DekoratorStanowy <<Dekorator>> {
     - stan: StanZadania
 
     + DekoratorStanowy(zadanie: Zadanie, stan: StanZadania) : base(zadanie)
@@ -208,24 +208,24 @@ class DekoratorStanowy {
 
 ' STANY
 ' Dostępne stany dla Zadanie
-interface StanZadania {
+interface StanZadania <<State>> {
     + wykonane(zadanie: Zadanie)
     + aktywne(zadanie: Zadanie)
     + zaległe(zadanie: Zadanie)
 }
 
 ' Konkretne stany 
-class StanWykonane {
+class StanWykonane <<State>> {
     + wykonane(): void
     + aktywne(): void
     + zaległe(): void
 }
-class StanAktywne {
+class StanAktywne <<State>> {
     + wykonane(): void
     + aktywne(): void
     + zaległe(): void
 }
-class StanZaległe {
+class StanZaległe <<State>> {
     + wykonane(): void
     + aktywne(): void
     + zaległe(): void
@@ -283,6 +283,7 @@ Zadanie <|.. StanAktywne
 Zadanie <|.. StanWykonane
 Zadanie <|.. StanZaległe
 Zadanie --> StanZadania : ma
+
 
 ' BUILDER
 IZadanieBuilder <|-- ZadanieBuilder
