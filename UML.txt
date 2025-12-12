@@ -12,15 +12,6 @@ enum Priorytet {
 
 
 ' KLASY
-class System {
-    - menedżerNotatek: MenedżerNotatek
-    - menedżerZadań: MenedżerZadań
-
-    + System()
-    + UtwórzNotatkę(tytuł: String, treść: String, tagi: List<Tag>): Notatka
-    + UtwórzZadanie(tytuł: String, treść: String, priorytet: Priorytet, termin: Date, tagi: List<Tag>): Zadanie
-}
-
 ' Abstrakcyjna Fabryka - dziedziczą z niej dwie fabryki Notatek i Zadań
 abstract class FabrykaWpisów <<Factory Method>> {
     # FabrykaWpisów()
@@ -243,8 +234,6 @@ class StanZaległe {
 
 
 ' RELACJE
-System ..> MenedżerNotatek : używa
-System ..> MenedżerZadań : używa
 
 ' Połączenie między Menedżerami a ich obiektami (kompozycja)
 MenedżerNotatek "1" *-- "0..*" Notatka
