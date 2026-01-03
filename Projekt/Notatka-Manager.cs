@@ -62,5 +62,20 @@ public partial class Program
             return new Notatka(tytul, tresc, tagi);
         }
     }
+    // Klasa MenedzerNotatek - Singleton
+    // Zarz¹dza wszystkimi notatkami w systemie
+    public class MenedzerNotatek
+    {
 
-}
+        private static MenedzerNotatek instancja;// Statyczna instancja Singletona        
+        private FabrykaNotatek fabryka;// Fabryka do tworzenia notatek
+        private List<Notatka> notatki;// Lista wszystkich notatek w systemie
+
+        // Prywatny konstruktor
+        private MenedzerNotatek()
+        {
+            fabryka = new FabrykaNotatek();
+            notatki = new List<Notatka>();
+        }
+
+    }
