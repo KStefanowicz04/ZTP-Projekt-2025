@@ -51,4 +51,16 @@ public partial class Program
             return WypiszInformacje();
         }
     }
+    // Klasa FabrykaNotatek - dziedziczy po abstrakcyjnej klasie FabrykaWpisow
+    // Wzorzec Factory Method - odpowiada za tworzenie instancji Notatek
+    public class FabrykaNotatek : FabrykaWpisow
+    {
+        // Nadpisanie metody abstrakcyjnej UtworzWpis
+        // Zwraca now¹ instancjê klasy Notatka
+        public override Wpis UtworzWpis(string tytul, string tresc, List<Tag> tagi)
+        {
+            return new Notatka(tytul, tresc, tagi);
+        }
+    }
+
 }
