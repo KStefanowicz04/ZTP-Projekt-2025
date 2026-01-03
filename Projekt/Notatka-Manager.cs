@@ -159,5 +159,10 @@ public partial class Program
 
             return wynik;
         }
+        public void WypiszWszystkieNotatki()
+        {
+            foreach (var n in notatki)
+                WypiszNotatke(n);
+        }
 
     }
