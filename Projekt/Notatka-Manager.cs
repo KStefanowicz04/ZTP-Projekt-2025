@@ -77,5 +77,20 @@ public partial class Program
             fabryka = new FabrykaNotatek();
             notatki = new List<Notatka>();
         }
+        // Zwraca instancjê Singletona
+        public static MenedzerNotatek GetterInstancji()
+        {
+            if (instancja == null)
+                instancja = new MenedzerNotatek();
+
+            return instancja;
+        }
+
+        // Tworzy now¹ notatkê przez fabrykê i dodaje j¹ do listy
+        public void UtworzNotatkePrzezFabryke(string tytul, string tresc, List<Tag> tagi)
+        {
+            Notatka nowa = (Notatka)fabryka.UtworzWpis(tytul, tresc, tagi);
+            notatki.Add(nowa);
+        }
 
     }
