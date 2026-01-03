@@ -121,5 +121,24 @@ public partial class Program
             }
             return null;
         }
+        // Wyszukiwanie notatek po s³owach kluczowych w tytule lub treœci
+        public List<Notatka> WyszukajNotatki(List<string> zawiera)
+        {
+            List<Notatka> wynik = new List<Notatka>();
+
+            foreach (var n in notatki)
+            {
+                foreach (var s in zawiera)
+                {
+                    if (n.Tytul.Contains(s) || n.Tresc.Contains(s))
+                    {
+                        wynik.Add(n);
+                        break; // nie dodajemy tej samej notatki kilka razy
+                    }
+                }
+            }
+
+            return wynik;
+        }
 
     }
