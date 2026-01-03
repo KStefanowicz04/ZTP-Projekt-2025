@@ -92,5 +92,18 @@ public partial class Program
             Notatka nowa = (Notatka)fabryka.UtworzWpis(tytul, tresc, tagi);
             notatki.Add(nowa);
         }
+        // Usuwa notatkê z listy i wypisuje jej zawartoœæ
+        public void UsunNotatke(Notatka notatka)
+        {
+            if (notatki.Remove(notatka))
+            {
+                Console.WriteLine("Usuniêto notatkê:");
+                WypiszNotatke(notatka);
+            }
+            else
+            {
+                Console.WriteLine("Nie znaleziono notatki do usuniêcia.");
+            }
+        }
 
     }
