@@ -140,5 +140,24 @@ public partial class Program
 
             return wynik;
         }
+        // Wyszukiwanie notatek po konkretnym tagu
+        public List<Notatka> WyszukajNotatki(Tag tag)
+        {
+            List<Notatka> wynik = new List<Notatka>();
+
+            foreach (var n in notatki)
+            {
+                foreach (var t in n.Tagi)
+                {
+                    if (t.Nazwa == tag.Nazwa)
+                    {
+                        wynik.Add(n);
+                        break;
+                    }
+                }
+            }
+
+            return wynik;
+        }
 
     }
