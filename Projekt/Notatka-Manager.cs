@@ -105,5 +105,21 @@ public partial class Program
                 Console.WriteLine("Nie znaleziono notatki do usuniêcia.");
             }
         }
+        // Wywo³uje ToString() na obiekcie Notatka
+        public void WypiszNotatke(Notatka notatka)
+        {
+            Console.WriteLine(notatka.ToString());
+        }
+
+        // Wyszukiwanie notatki po ID
+        public Notatka WyszukajNotatki(int id)
+        {
+            foreach (var n in notatki)
+            {
+                if (n.ID == id)
+                    return n;
+            }
+            return null;
+        }
 
     }
