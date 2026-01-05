@@ -10,15 +10,12 @@ public partial class Program
     public class Notatka : Wpis
     {
 
+        public bool Ulubiona { get; private set; }  // Okreœla, czy notatka jest oznaczona jako ulubiona
+        public List<Tag> Tagi { get; set; }  // Lista tagów przypisanych do notatki
 
-        public bool Ulubiona { get; private set; }// Okreœla, czy notatka jest oznaczona jako ulubiona
-        public List<Tag> Tagi { get; set; }// Lista tagów przypisanych do notatki
-
-
-        public Notatka(string tytul, string tresc, List<Tag> tagi)// Konstruktor klasy Notatka
-            : base(tytul, tresc)
+        // Konstruktor klasy Notatka
+        public Notatka(string tytul, string tresc, List<Tag> tagi) : base(tytul, tresc)
         {
-
             if (tagi != null)
                 Tagi = tagi;
             else
@@ -40,11 +37,11 @@ public partial class Program
             string tagiStr;
 
             if (Tagi.Count > 0)
-                tagiStr = string.Join(", ", Tagi.Select(t => t.Nazwa));
+                tagiStr = string.Join(", ", Tagi.Select(t => t.nazwa));
             else
                 tagiStr = "Brak tagów";
 
-            return $"ID: {ID}, Tytu³: {Tytul}, Treœæ: {Tresc}, Ulubiona: {Ulubiona}, Tagi: {tagiStr}";
+            return $"ID: {id}, Tytu³: {tytul}, Treœæ: {tresc}, Ulubiona: {Ulubiona}, Tagi: {tagiStr}";
         }
 
         // Nadpisanie ToString() dla wygodnego wypisywania notatki
@@ -53,11 +50,11 @@ public partial class Program
             return WypiszInformacje();
         }
     }
+
+
     // Klasa FabrykaNotatek - dziedziczy po abstrakcyjnej klasie FabrykaWpisow
     // Wzorzec Factory Method - odpowiada za tworzenie instancji Notatek
-    public class FabrykaNotatek : FabrykaWpisow 
-        
-        //!!! brak obecnie fabryki wpisów 
+    public class FabrykaNotatek : FabrykaWpisow
     {
         // Nadpisanie metody abstrakcyjnej UtworzWpis
         // Zwraca now¹ instancjê klasy Notatka
@@ -66,6 +63,8 @@ public partial class Program
             return new Notatka(tytul, tresc, tagi);
         }
     }
+
+
     // Klasa MenedzerNotatek - Singleton
     // Zarz¹dza wszystkimi notatkami w systemie
     public class MenedzerNotatek
@@ -120,7 +119,7 @@ public partial class Program
         {
             foreach (var n in notatki)
             {
-                if (n.ID == id)
+                if (n.id == id)
                     return n;
             }
             return null;
@@ -134,7 +133,7 @@ public partial class Program
             {
                 foreach (var s in zawiera)
                 {
-                    if (n.Tytul.Contains(s) || n.Tresc.Contains(s))
+                    if (n.tytul.Contains(s) || n.tresc.Contains(s))
                     {
                         wynik.Add(n);
                         break; // nie dodajemy tej samej notatki kilka razy
@@ -153,7 +152,7 @@ public partial class Program
             {
                 foreach (var t in n.Tagi)
                 {
-                    if (t.Nazwa == tag.Nazwa)
+                    if (t.nazwa == tag.nazwa)
                     {
                         wynik.Add(n);
                         break;
@@ -170,3 +169,4 @@ public partial class Program
         }
 
     }
+}
