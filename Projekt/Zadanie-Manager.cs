@@ -25,6 +25,13 @@ public partial class Program
         private Priorytet priorytet;
         private DateTime termin;
 
+        public Zadanie(string tytul,string tresc,Priorytet priorytet,DateTime termin) 
+            : base(tytul, tresc)
+        {
+            this.priorytet = priorytet;
+            this.termin = termin;
+            this.stan = StanZadania.Aktywne;
+        }
 
     }
- }
+}
