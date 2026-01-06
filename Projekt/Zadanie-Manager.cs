@@ -32,6 +32,12 @@ public partial class Program
             this.termin = termin;
             this.stan = StanZadania.Aktywne;
         }
+        public void Edytuj(string tytul,string tresc,Priorytet priorytet,DateTime termin)
+        {
+            base.Edytuj(tytul, tresc);
+            this.priorytet = priorytet;
+            this.termin = termin;
+        }
 
     }
 }
