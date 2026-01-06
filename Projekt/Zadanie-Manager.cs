@@ -19,4 +19,12 @@ public partial class Program
         Sredni,
         Wysoki
     }
-}
+    public class Zadanie : Wpis
+    {
+        private StanZadania stan;
+        private Priorytet priorytet;
+        private DateTime termin;
+
+
+    }
+ }
