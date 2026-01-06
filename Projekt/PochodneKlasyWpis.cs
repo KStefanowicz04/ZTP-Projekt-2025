@@ -16,7 +16,7 @@ public partial class Program
     {
         // Pola klasy Wpis
         // id danego wpisu (generowane przy konstrukcji przez klasy pochodne Notatka i Zadanie, zapisywane w menedżerach)
-        public int id { get; }
+        public int id { get; protected set; }
         public string tytul { get; set; }  // tytuł danego wpisu
         public string tresc { get; set; }  // treść danego wpisu
         protected DateTime dataUtworzenia;  // data utworzenia wpisu

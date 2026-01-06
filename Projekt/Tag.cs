@@ -39,11 +39,7 @@ public partial class Program
     public class MenedzerTagow
     {
         // Statyczna instancja Singletona; getter korzysta z metody GetterInstancji()
-        private static MenedzerTagow instancja
-        {
-            get { return GetterInstancji(); }
-            set { }
-        }
+        private static MenedzerTagow instancja;
         // Lista wszystkich tagów
         List<Tag> tagi;
 
@@ -65,16 +61,36 @@ public partial class Program
         }
 
 
-        // Tworzy nowy tag i dodaje go do listy tagów
-        public void UtworzTag(string nazwa)
+        // Tworzy nowy tag i dodaje go do listy tagów (jeśli dany tag jeszcze nie istnieje).
+        // Zwraca 'true' jeśli dodanie się powiodło
+        public bool UtworzTag(string nazwa)
         {
-            Tag nowyTag = new Tag(nazwa);
-            tagi.Add(nowyTag);
+            // Jeśli takiego Tagu jeszcze nie ma w Liście tagów...
+            if (ZwrocTag(nazwa) == null)
+            {
+                Console.WriteLine();
+                Tag nowyTag = new Tag(nazwa);
+                tagi.Add(nowyTag);
+
+                return true;
+            }
+
+            return false;
         }
 
-        // Usuwa tag z listy tagów
-        public void UsunTag(Tag tag)
+        // Zwraca Tag z Listy Tagów o danej nazwie
+        public Tag ZwrocTag(string nazwa)
         {
+            return tagi.FirstOrDefault(n => n.nazwa == nazwa);
+        }
+
+        // Usuwa tag o podanej nazwie z listy tagów
+        public void UsunTag(string nazwa)
+        {
+            // Pomocniczy wskaźnik na Tag
+            Tag tag = ZwrocTag(nazwa);
+
+            // Próba usunięcia Taga
             if (tagi.Remove(tag) == true)
             {
                 Console.WriteLine("Usunięto tag: " + tag.nazwa);
@@ -85,7 +101,7 @@ public partial class Program
             }
         }
 
-        // Wypisuje wszystkie tagi w liście tagów
+        // Wypisuje wszystkie tagi w liście tagów po przecinku
         public void WypiszTagi()
         {
             Console.WriteLine("Tagi: ");
@@ -94,6 +110,5 @@ public partial class Program
                 Console.Write($"{tag}, ");
             }
         }
-
     }
 }

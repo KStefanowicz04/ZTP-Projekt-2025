@@ -9,13 +9,15 @@ public partial class Program
     // Reprezentuje pojedyncz¹ notatkê w systemie.
     public class Notatka : Wpis
     {
-
         public bool Ulubiona { get; private set; }  // Okreœla, czy notatka jest oznaczona jako ulubiona
         public List<Tag> Tagi { get; set; }  // Lista tagów przypisanych do notatki
 
         // Konstruktor klasy Notatka
         public Notatka(string tytul, string tresc, List<Tag> tagi) : base(tytul, tresc)
         {
+            // Manager notatek decyduje jaki numer ID zostanie przypisany do danej Notatki
+            id = MenedzerNotatek.GetterInstancji().WybierzIDNotatki();
+
             if (tagi != null)
                 Tagi = tagi;
             else
@@ -70,9 +72,10 @@ public partial class Program
     public class MenedzerNotatek
     {
 
-        private static MenedzerNotatek instancja;// Statyczna instancja Singletona        
-        private FabrykaNotatek fabryka;// Fabryka do tworzenia notatek
-        private List<Notatka> notatki;// Lista wszystkich notatek w systemie
+        private static MenedzerNotatek instancja;  // Statyczna instancja Singletona        
+        private FabrykaNotatek fabryka;  // Fabryka do tworzenia notatek
+        private List<Notatka> notatki;  // Lista wszystkich notatek w systemie
+        private HashSet<int> IDNotatek = new();  // HashSet unikalnych ID Notatek. ID siê nie powtarzaj¹.
 
         // Prywatny konstruktor
         private MenedzerNotatek()
@@ -90,11 +93,28 @@ public partial class Program
         }
 
         // Tworzy now¹ notatkê przez fabrykê i dodaje j¹ do listy
-        public void UtworzNotatkePrzezFabryke(string tytul, string tresc, List<Tag> tagi)
+        // Domyœlnie Lista tagów jest 'null'; to oznacza, ¿e Notatka nie musi mieæ ¿adnych tagów.
+        public void UtworzNotatkePrzezFabryke(string tytul, string tresc, List<Tag> tagi = null)
         {
             Notatka nowa = (Notatka)fabryka.UtworzWpis(tytul, tresc, tagi);
             notatki.Add(nowa);
         }
+
+        // Metoda wybieraj¹ca unikalne ID dla notatki, zwraca to ID.
+        public int WybierzIDNotatki()
+        {
+            int id = 0;  // Nowe ID zaczyna odliczanie od 0
+            // Pêtla od 0 w górê, przez HashSet ID, a¿ znajdziemy nieu¿yte ID.
+            while(IDNotatek.Contains(id))
+            {
+                id++;
+            }
+
+            // Dane ID nie jest u¿ywane, dodajemy je do HashSetu.
+            IDNotatek.Add(id);
+            return id;
+        }
+
         // Usuwa notatkê z listy i wypisuje jej zawartoœæ
         public void UsunNotatke(Notatka notatka)
         {
