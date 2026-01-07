@@ -39,11 +39,7 @@ public partial class Program
     public class MenedzerTagow
     {
         // Statyczna instancja Singletona; getter korzysta z metody GetterInstancji()
-        private static MenedzerTagow instancja
-        {
-            get { return GetterInstancji(); }
-            set { }
-        }
+        private static MenedzerTagow instancja;
         // Lista wszystkich tagów
         List<Tag> tagi;
 
@@ -65,16 +61,37 @@ public partial class Program
         }
 
 
-        // Tworzy nowy tag i dodaje go do listy tagów
-        public void UtworzTag(string nazwa)
+        // Tworzy nowy tag i dodaje go do listy tagów (jeśli dany tag jeszcze nie istnieje).
+        // Zwraca dany Tag jeśli dodanie się powiodło, albo 'null' jeśli nie.
+        public Tag UtworzTag(string nazwa)
         {
-            Tag nowyTag = new Tag(nazwa);
-            tagi.Add(nowyTag);
+            // Jeśli takiego Tagu jeszcze nie ma w Liście tagów...
+            if (ZwrocTag(nazwa) == null)
+            {
+                // Tworzymy taki Tag i go zwracamy
+                Console.WriteLine();
+                Tag nowyTag = new Tag(nazwa);
+                tagi.Add(nowyTag);
+
+                return nowyTag;
+            }
+
+            return null;
         }
 
-        // Usuwa tag z listy tagów
-        public void UsunTag(Tag tag)
+        // Zwraca Tag z Listy Tagów o danej nazwie
+        public Tag ZwrocTag(string nazwa)
         {
+            return tagi.FirstOrDefault(n => n.nazwa == nazwa);
+        }
+
+        // Usuwa tag o podanej nazwie z listy tagów
+        public void UsunTag(string nazwa)
+        {
+            // Pomocniczy wskaźnik na Tag
+            Tag tag = ZwrocTag(nazwa);
+
+            // Próba usunięcia Taga
             if (tagi.Remove(tag) == true)
             {
                 Console.WriteLine("Usunięto tag: " + tag.nazwa);
@@ -85,15 +102,14 @@ public partial class Program
             }
         }
 
-        // Wypisuje wszystkie tagi w liście tagów
-        public void WypiszTagi()
+        // Wypisuje wszystkie tagi w liście tagów po przecinku
+        public void Wypisztagi()
         {
-            Console.WriteLine("Tagi: ");
+            Console.WriteLine("tagi: ");
             foreach (Tag tag in tagi)
             {
                 Console.Write($"{tag}, ");
             }
         }
-
     }
 }

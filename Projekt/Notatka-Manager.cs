@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Formats.Asn1;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using static Program;
 
 public partial class Program
 {
@@ -9,17 +11,18 @@ public partial class Program
     // Reprezentuje pojedyncz¹ notatkê w systemie.
     public class Notatka : Wpis
     {
-
         public bool Ulubiona { get; private set; }  // Okreœla, czy notatka jest oznaczona jako ulubiona
-        public List<Tag> Tagi { get; set; }  // Lista tagów przypisanych do notatki
 
         // Konstruktor klasy Notatka
         public Notatka(string tytul, string tresc, List<Tag> tagi) : base(tytul, tresc)
         {
+            // Manager notatek decyduje jaki numer ID zostanie przypisany do danej Notatki
+            id = MenedzerNotatek.GetterInstancji().WybierzIDNotatki();
+
             if (tagi != null)
-                Tagi = tagi;
+                this.tagi = tagi;
             else
-                Tagi = new List<Tag>();
+                this.tagi = new List<Tag>();
 
             Ulubiona = false; // domyœlnie notatka nie jest ulubiona
         }
@@ -36,12 +39,12 @@ public partial class Program
         {
             string tagiStr;
 
-            if (Tagi.Count > 0)
-                tagiStr = string.Join(", ", Tagi.Select(t => t.nazwa));
+            if (tagi != null && tagi.Count > 0)
+                tagiStr = string.Join(", ", tagi.Select(t => t.nazwa));
             else
                 tagiStr = "Brak tagów";
 
-            return $"ID: {id}, Tytu³: {tytul}, Treœæ: {tresc}, Ulubiona: {Ulubiona}, Tagi: {tagiStr}";
+            return $"[NOTATKA] ID: {id} | Tytu³: {tytul} | Treœæ: {tresc} | Ulubiona: {Ulubiona} | tagi: {tagiStr}";
         }
 
         // Nadpisanie ToString() dla wygodnego wypisywania notatki
@@ -57,9 +60,27 @@ public partial class Program
     public class FabrykaNotatek : FabrykaWpisow
     {
         // Nadpisanie metody abstrakcyjnej UtworzWpis
-        // Zwraca now¹ instancjê klasy Notatka
-        public override Wpis UtworzWpis(string tytul, string tresc, List<Tag> tagi)
+        // Zwraca now¹ instancjê klasy Notatka. Przyjmuje Listê stringów 'tagi', która jest przekazywana do MenedzeraTagów
+        public override Wpis UtworzWpis(string tytul, string tresc, List<string> nazwyTagow)
         {
+            List<Tag> tagi = null;
+            if (nazwyTagow != null)
+            {
+                // Mened¿erTagów zajmuje siê znalezieniem i zwróceniem odpowiednich Tagów.
+                tagi = new List<Tag>();  // Rzeczywista Lista Tagów, przekazywana do Notatki
+                foreach (string nazwaTagu in nazwyTagow)
+                {
+                    // Pytamy Mened¿eraTagów o zwrócenie wskaŸnika na dany Tag.
+                    // Jeœli zwróci 'null', dany Tag nie istnieje, wiêc go nie dodajemy
+                    Tag tag = MenedzerTagow.GetterInstancji().ZwrocTag(nazwaTagu);
+                    if (tag != null)
+                    {
+                        tagi.Add(tag);
+                    }
+                }
+            }
+
+            // W³aœciwe utworzenie Notatki
             return new Notatka(tytul, tresc, tagi);
         }
     }
@@ -70,9 +91,10 @@ public partial class Program
     public class MenedzerNotatek
     {
 
-        private static MenedzerNotatek instancja;// Statyczna instancja Singletona        
-        private FabrykaNotatek fabryka;// Fabryka do tworzenia notatek
-        private List<Notatka> notatki;// Lista wszystkich notatek w systemie
+        private static MenedzerNotatek instancja;  // Statyczna instancja Singletona        
+        private FabrykaNotatek fabryka;  // Fabryka do tworzenia notatek
+        private List<Notatka> notatki;  // Lista wszystkich notatek w systemie
+        private HashSet<int> IDNotatek = new();  // HashSet unikalnych ID Notatek. ID siê nie powtarzaj¹.
 
         // Prywatny konstruktor
         private MenedzerNotatek()
@@ -90,11 +112,31 @@ public partial class Program
         }
 
         // Tworzy now¹ notatkê przez fabrykê i dodaje j¹ do listy
-        public void UtworzNotatkePrzezFabryke(string tytul, string tresc, List<Tag> tagi)
+        // Domyœlnie Lista tagów jest 'null'; to oznacza, ¿e Notatka nie musi mieæ ¿adnych tagów.
+        public void UtworzNotatkePrzezFabryke(string tytul, string tresc, List<string> tagi = null)
         {
-            Notatka nowa = (Notatka)fabryka.UtworzWpis(tytul, tresc, tagi);
-            notatki.Add(nowa);
+            // Lista stringów 'tagi' podana do metody zawiera nazwy Tagów, które powinny zostaæ przypisane do
+            // nowo utworzonej notatki. Te tagi nie koniecznie istniej¹, wiêc zajmie siê tym Fabryka.
+
+            Notatka notatka = (Notatka)fabryka.UtworzWpis(tytul, tresc, tagi);
+            notatki.Add(notatka);
         }
+
+        // Metoda wybieraj¹ca unikalne ID dla notatki, zwraca to ID.
+        public int WybierzIDNotatki()
+        {
+            int id = 0;  // Nowe ID zaczyna odliczanie od 0
+            // Pêtla od 0 w górê, przez HashSet ID, a¿ znajdziemy nieu¿yte ID.
+            while(IDNotatek.Contains(id))
+            {
+                id++;
+            }
+
+            // Dane ID nie jest u¿ywane, dodajemy je do HashSetu.
+            IDNotatek.Add(id);
+            return id;
+        }
+
         // Usuwa notatkê z listy i wypisuje jej zawartoœæ
         public void UsunNotatke(Notatka notatka)
         {
@@ -108,14 +150,18 @@ public partial class Program
                 Console.WriteLine("Nie znaleziono notatki do usuniêcia.");
             }
         }
+
         // Wywo³uje ToString() na obiekcie Notatka
         public void WypiszNotatke(Notatka notatka)
         {
-            Console.WriteLine(notatka.ToString());
+            if (notatka != null)
+            {
+                Console.WriteLine(notatka.ToString());
+            }
         }
 
         // Wyszukiwanie notatki po ID
-        public Notatka WyszukajNotatki(int id)
+        public Notatka WyszukajNotatke(int id)
         {
             foreach (var n in notatki)
             {
@@ -124,8 +170,9 @@ public partial class Program
             }
             return null;
         }
+
         // Wyszukiwanie notatek po s³owach kluczowych w tytule lub treœci
-        public List<Notatka> WyszukajNotatki(List<string> zawiera)
+        public List<Notatka> WyszukajNotatke(List<string> zawiera)
         {
             List<Notatka> wynik = new List<Notatka>();
 
@@ -144,17 +191,17 @@ public partial class Program
             return wynik;
         }
         // Wyszukiwanie notatek po konkretnym tagu
-        public List<Notatka> WyszukajNotatki(Tag tag)
+        public List<Notatka> WyszukajNotatke(Tag danyTag)
         {
             List<Notatka> wynik = new List<Notatka>();
 
-            foreach (var n in notatki)
+            foreach (var notatka in notatki)
             {
-                foreach (var t in n.Tagi)
+                foreach (Tag tag in notatka.tagi)
                 {
-                    if (t.nazwa == tag.nazwa)
+                    if (tag.nazwa == danyTag.nazwa)
                     {
-                        wynik.Add(n);
+                        wynik.Add(notatka);
                         break;
                     }
                 }
@@ -162,10 +209,18 @@ public partial class Program
 
             return wynik;
         }
-        public void WypiszWszystkieNotatki()
+
+        // Wypisuje wszystkie Notatki
+        public void WypiszNotatki()
         {
-            foreach (var n in notatki)
-                WypiszNotatke(n);
+            // Dzia³a tylko gdy Lista Notatek nie jest pusta
+            if (notatki.Count > 0)
+            {
+                foreach (Notatka n in notatki)
+                {
+                    WypiszNotatke(n);
+                }
+            }
         }
 
     }
