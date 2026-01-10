@@ -70,6 +70,13 @@ public partial class Program
             //ZmienStan();
         }
 
+
+        // Zwrócenie nazwy obecnego stanu Zadania w formie string
+        public string ZwrocStan()
+        {
+            return stan.GetType().Name;
+        }
+
         // Zmiana obecnego stanu zadania
         public void ZmienStan(IStanZadania stan)
         {
@@ -109,14 +116,7 @@ public partial class Program
         // Wypisuje podstawowe informacje o zadaniu
         public override string WypiszInformacje()
         {
-            string tagiStr;
-
-            if (tagi != null && tagi.Count > 0)
-                tagiStr = string.Join(", ", tagi.Select(t => t.nazwa));
-            else
-                tagiStr = "Brak tagów";
-
-            return $"[ZADANIE] ID: {id} | Tytu³: {tytul} | Treœæ: {tresc} | Priorytet: {priorytet} | Termin: {termin:d} | Stan: {stan.GetType().Name} | tagi: {tagiStr}";
+            return $"[ZADANIE] ID: {id} | Tytu³: {tytul} | Treœæ: {tresc} | Priorytet: {priorytet} | Termin: {termin:d}";
         }
 
         // Nadpisanie ToString() dla wygodnego wypisywania notatki
@@ -266,12 +266,12 @@ public partial class Program
             }
         }
 
-        // Wypisanie zawartoœci wszystkich zadañ
+        // Wypisanie zawartoœci danego zadania
         public void WypiszZadanie(Zadanie zadanie)
         {
             if (zadanie != null)
             {
-                Console.WriteLine(zadanie.ToString());
+                Console.WriteLine(zadanie.WypiszInformacje());
             }
         }
 
