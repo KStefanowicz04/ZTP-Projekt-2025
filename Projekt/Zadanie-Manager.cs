@@ -54,7 +54,12 @@ public partial class Program
 
 
         // Metody
-        //
+        // Zwraca termin wykonania zadania.
+        // pole "termin" jest prywatne i nie mo¿e byæ bezpoœrednio odczytywane poza klas¹ Zadanie (np. przez Mened¿eraZadañ).
+        public DateTime ZwrocTermin()
+        {
+            return termin;
+        }
         // Edytowanie zadania
         public override void Edytuj(string tytul, string tresc, Priorytet priorytet, DateTime termin)
         {
@@ -225,6 +230,7 @@ public partial class Program
             return instancja;
         }
 
+
         // Utworzenie nowego Zadania poprzez Fabrykê 
         public void UtworzZadaniePrzezFabryke(string tytul, string tresc, Priorytet priorytet, DateTime termin, List<string> tagi = null)
         {
@@ -304,6 +310,26 @@ public partial class Program
 
             return wynik;
         }
+        public List<Zadanie> SzukajPoTerminach(DateTime od, DateTime doDaty)
+        {
+            List<Zadanie> wynik = new List<Zadanie>();
+
+            foreach (Zadanie z in zadania)
+            {
+                if (z != null)
+                {
+                    if (z.SprawdzCzyZalegle() == false &&
+                        z.ZwrocTermin() >= od &&
+                        z.ZwrocTermin() <= doDaty)
+                    {
+                        wynik.Add(z);
+                    }
+                }
+            }
+
+            return wynik;
+        }
+
 
         // Oznacza Zadania z podanej Listy Zadañ jako wykonane
         public void OznaczZadaniaJakowykonane(List<Zadanie> lista)
