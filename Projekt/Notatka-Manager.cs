@@ -74,7 +74,18 @@ public partial class Program
             }
 
             // W³aœciwe utworzenie Notatki
-            return new Notatka(tytul, tresc, tagi);
+            Notatka notatka = new Notatka(tytul, tresc, tagi);
+            // Dodanie Notatki do listy Notatek wszystkich wybranych Tagów
+            if (tagi != null)
+            {
+                foreach (Tag tag in tagi)
+                {
+                    tag.DodajWpis(notatka);
+                }
+            }
+
+
+            return notatka;
         }
     }
 
@@ -83,10 +94,13 @@ public partial class Program
     // Zarz¹dza wszystkimi notatkami w systemie
     public class MenedzerNotatek
     {
-
         private static MenedzerNotatek instancja;  // Statyczna instancja Singletona        
         private FabrykaNotatek fabryka;  // Fabryka do tworzenia notatek
         private List<Notatka> notatki;  // Lista wszystkich notatek w systemie
+        public List<Notatka> Notatki  // Publiczny getter
+        {
+            get { return notatki; }
+        }
         private HashSet<int> IDNotatek = new();  // HashSet unikalnych ID Notatek. ID siê nie powtarzaj¹.
 
         // Prywatny konstruktor
@@ -135,6 +149,12 @@ public partial class Program
         {
             if (notatki.Remove(notatka))
             {
+                // Usuniêcie danej Notatki z Listy Notatek Tagów przypisanych do danej Notatki
+                foreach(Tag tag in notatka.tagi)
+                {
+                    tag.UsunWpis(notatka);
+                }
+
                 Console.WriteLine("Usuniêto notatkê:");
                 WypiszNotatke(notatka);
             }
@@ -144,14 +164,19 @@ public partial class Program
             }
         }
 
-        // Wywo³uje WypiszInformacje() na podanym obiekcie Notatka
-        public void WypiszNotatke(Notatka notatka)
+
+        // Dodaje podany Tag do danej Notatki. Zwraca true jeœli dodanie zakoñczy³o siê sukcesem.
+        public bool DodajTagDoNotatki(Notatka notatka, Tag tag)
         {
-            if (notatka != null)
-            {
-                Console.WriteLine(notatka.WypiszInformacje());
-            }
+            return notatka.DodajTag(tag);
         }
+
+        // Usuwa podany Tag z danej Notatki. Zwraca true jeœli usuniêcie zakoñczy³o siê sukcesem.
+        public bool UsunTagZNotatki(Notatka notatka, Tag tag)
+        {
+            return notatka.UsunTag(tag);
+        }
+
 
         // Wyszukiwanie notatki po ID
         public Notatka WyszukajNotatke(int id)
@@ -163,7 +188,6 @@ public partial class Program
             }
             return null;
         }
-
         // Wyszukiwanie notatek po s³owach kluczowych w tytule lub treœci
         public List<Notatka> WyszukajNotatke(List<string> zawiera)
         {
@@ -201,6 +225,16 @@ public partial class Program
             }
 
             return wynik;
+        }
+
+
+        // Wywo³uje WypiszInformacje() na podanym obiekcie Notatka
+        public void WypiszNotatke(Notatka notatka)
+        {
+            if (notatka != null)
+            {
+                Console.WriteLine(notatka.WypiszInformacje());
+            }
         }
 
         // Wypisuje wszystkie Notatki

@@ -126,20 +126,7 @@ public partial class Program
         // Wypisuje podstawowe informacje o zadaniu
         public override string WypiszInformacje()
         {
-            string infoTagi = "Brak tagów";
-
-            if (tagi != null && tagi.Count > 0)
-            {
-                List<string> nazwy = new List<string>();
-                foreach (Tag t in tagi)
-                {
-                    nazwy.Add(t.nazwa);
-                }
-                infoTagi = string.Join(", ", nazwy);
-            }
-
-            // Zwracamy pe³ne informacje o zadaniu
-            return $"[ZADANIE] ID: {id} | Tytu³: {tytul} | Treœæ: {tresc} | Utworzone: {dataUtworzenia} | Ostatnia modyfikacja: {dataModyfikacji} | Priorytet: {priorytet} | Termin: {termin:d} | Stan: {stan.GetType().Name} | Tagi: {infoTagi}";
+            return $"[ZADANIE] ID: {id} | Tytu³: {tytul} | Treœæ: {tresc} | Priorytet: {priorytet} | Termin: {termin:d}";
         }
 
         // Nadpisanie ToString() dla wygodnego wypisywania notatki
@@ -227,6 +214,10 @@ public partial class Program
         private static MenedzerZadan instancja;  // Singleton; instancja Fabryki Zadañ
         private FabrykaZadan fabryka;  // WskaŸnik na Fabrykê zadañ
         private List<Zadanie> zadania;  // Lista wszystkich Zadañ w programie
+        public List<Zadanie> Zadania  // Publiczny getter
+        {
+            get { return zadania; }
+        }
         private HashSet<int> IDZadan = new();  // HashSet unikalnych ID Zadañ. ID siê nie powtarzaj¹.
 
 
@@ -281,6 +272,12 @@ public partial class Program
         {
             if (zadania.Remove(zadanie))
             {
+                // Usuniêcie danej Notatki z Listy Notatek Tagów przypisanych do danej Notatki
+                foreach (Tag tag in zadanie.tagi)
+                {
+                    tag.UsunWpis(zadanie);
+                }
+
                 Console.WriteLine("Usuniêto zadanie:");
                 WypiszZadanie(zadanie);
             }
@@ -289,6 +286,20 @@ public partial class Program
                 Console.WriteLine("Nie znaleziono zadania do usuniêcia.");
             }
         }
+
+
+        // Dodaje podany Tag do danego Zadania. Zwraca true jeœli dodanie zakoñczy³o siê sukcesem.
+        public bool DodajTagDoZadania(Zadanie zadanie, Tag tag)
+        {
+            return zadanie.DodajTag(tag);
+        }
+
+        // Usuwa podany Tag z danego Zadania. Zwraca true jeœli usuniêcie zakoñczy³o siê sukcesem.
+        public bool UsunTagZZadania(Zadanie zadanie, Tag tag)
+        {
+            return zadanie.UsunTag(tag);
+        }
+
 
         // Wypisanie zawartoœci danego zadania
         public void WypiszZadanie(Zadanie zadanie)
@@ -410,15 +421,7 @@ public partial class Program
     public class FabrykaZadan : FabrykaWpisow
     {
         // Konstruktor
-        public FabrykaZadan() : base()
-        {
-
-        }
-
-
-
-
-
+        public FabrykaZadan() : base() { }
 
 
         // Nadpisanie metody fabrykuj¹cej wpis
@@ -443,8 +446,21 @@ public partial class Program
 
             IStanZadania domyslnyStan = new StanAktywne();
 
-            // Utworzenie i zwrócenie nowego Zadania na podstawie powy¿szych danych
-            return new Zadanie(tytul, tresc, domyslnyStan, priorytet, termin, tagi);
+
+            // W³aœciwe utworzenie Zadania na podstawie powy¿szych danych
+            Zadanie zadanie = new Zadanie(tytul, tresc, domyslnyStan, priorytet, termin, tagi);
+            // Dodanie Zadania do listy Zadañ wszystkich wybranych Tagów
+            if (tagi != null)
+            {
+                foreach (Tag tag in tagi)
+                {
+                    tag.DodajWpis(zadanie);
+                }
+            }
+
+
+            // Utworzenie i zwrócenie nowego Zadania 
+            return zadanie;
         }
 
        

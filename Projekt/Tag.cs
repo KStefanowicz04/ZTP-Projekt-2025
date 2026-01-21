@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Formats.Asn1;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using static Program;
 
 public partial class Program
 {
@@ -12,18 +13,37 @@ public partial class Program
         // Nazwa danego tagu
         public string nazwa { get; }
 
-        // Lista Notatek do których przypisany jest dany tag
-        public List<Notatka> notatki { get; }
-
-        // Lista Zadań do których przypisany jest dany tag
-        //public List<Zadanie> zadania { get; }  // UWAGA: ZADANIA JESZCZE NIE ISTENIEJĄ
+        // Lista Wpisów do których przypisany jest dany tag
+        public List<Wpis> wpisy{ get; }
 
 
         // Konstruktor
         public Tag(string nazwa)
         {
             this.nazwa = nazwa;
+            wpisy = new List<Wpis>();
         }
+
+
+        // Dodaje podany Wpis do listy Wpisów w danym Tagu, jeśli dany Wpis jeszcze tam nie występuje
+        // Zwraca true jeśli dodanie było sukcesem.
+        public bool DodajWpis(Wpis wpis)
+        {
+            if (wpisy.Contains(wpis) == false)
+            {
+                wpisy.Add(wpis);
+                return true;
+            }
+            return false;
+        }
+
+        // Usuwa podany Wpis z listy Wpisów w danym Tagu.
+        // Zwraca true jeśli usunięcie było sukcesem.
+        public bool UsunWpis(Wpis wpis)
+        {
+            return wpisy.Remove(wpis);
+        }
+
 
 
         // Nadpisanie ToString(); wypisuje nazwę tagu
@@ -101,6 +121,20 @@ public partial class Program
                 Console.WriteLine("Nie znaleziono tagu do usunięcia.");
             }
         }
+
+
+        // Dodaje podany Wpis do danego Tagu. Zwraca true jeśli dodanie zakończyło się sukcesem.
+        public bool DodajWpisDoTagu(Tag tag, Wpis wpis)
+        {
+            return tag.DodajWpis(wpis);
+        }
+
+        // Usuwa podany Wpis z danego Tagu. Zwraca true jeśli usunięcie zakończyło się sukcesem.
+        public bool UsunWpisZTagu(Tag tag, Wpis wpis)
+        {
+            return tag.UsunWpis(wpis);
+        }
+
 
         // Wypisuje wszystkie tagi w liście tagów po przecinku
         public void Wypisztagi()
