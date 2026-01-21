@@ -87,6 +87,10 @@ public partial class Program
         private static MenedzerNotatek instancja;  // Statyczna instancja Singletona        
         private FabrykaNotatek fabryka;  // Fabryka do tworzenia notatek
         private List<Notatka> notatki;  // Lista wszystkich notatek w systemie
+        public List<Notatka> Notatki  // Publiczny getter
+        {
+            get { return notatki; }
+        }
         private HashSet<int> IDNotatek = new();  // HashSet unikalnych ID Notatek. ID siê nie powtarzaj¹.
 
         // Prywatny konstruktor

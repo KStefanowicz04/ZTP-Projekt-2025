@@ -2,6 +2,8 @@
 // Program główny
 // "partial class" oznacza jedynie, że kod całego programu jest porozsiewany po wielu plikach.
 // Wszystkie pliki w projekcie powinny zaczynać się od "public partial class Program"
+using static Program;
+
 public partial class Program
 {
 
@@ -37,8 +39,8 @@ public partial class Program
             Console.WriteLine("8. Usuń Tag z Notatki\n9. Usuń Tag z Zadania");
             Console.WriteLine("10. Dodaj nową notatkę\n11. Usuń notatkę");
             Console.WriteLine("12. Dodaj nowe zadanie przez Fabrykę\n13. Usuń zadanie");
-            Console.WriteLine("14. Wypisz notatki wraz z ich tagami\n15. Wypisz zadania wraz z ich tagami");
-            Console.WriteLine("16. Wypisz wybrane Zadanie wraz z jego obecnym stanem");
+            Console.WriteLine("14. Wypisz Notatki wraz z ich tagami\n15. Wypisz Zadania wraz z ich tagami");
+            Console.WriteLine("16. Wypisz Zadania wraz z ich obecnym stanem");
             Console.WriteLine("17. Wyszukaj ");
             string command = Console.ReadLine();  // Odczytuje komendę z klawiatury.
 
@@ -106,6 +108,12 @@ public partial class Program
 
                     // Próba znalezienia Notatki
                     Notatka notatka = menedzerNotatek.WyszukajNotatke(int.Parse(command));
+                    if (notatka == null)
+                    {
+                        Console.WriteLine("Notatka o danym ID nie istnieje");
+                        break;
+                    }
+
                     // Właściwe dodanie podanego Tagu do Notatki
                     bool wynik = menedzerNotatek.DodajTagDoNotatki(notatka, tag);
 
@@ -136,8 +144,14 @@ public partial class Program
                         break;
                     }
 
-                    // Próba znalezienia Notatki
+                    // Próba znalezienia Zadania
                     Zadanie zadanie = menedzerZadan.WyszukajZadanie(int.Parse(command));
+                    if (zadanie == null)
+                    {
+                        Console.WriteLine("Zadanie o danym ID nie istnieje");
+                        break;
+                    }
+
                     // Właściwe dodanie podanego Tagu do Notatki
                     wynik = menedzerZadan.DodajTagDoZadania(zadanie, tag);
 
@@ -145,11 +159,83 @@ public partial class Program
 
                     break;
 
+                // Usuń Tag z Notatki
+                case "8":
+                    Console.WriteLine("Podaj nazwę Tagu do usunięcia:");
+                    command = Console.ReadLine();
 
+                    // Zmienna pomocnicza przechowująca wskaźnik na dany Tag
+                    tag = menedzerTagow.ZwrocTag(command);
+                    // Utworzenie nowego Tagu jeśli nie istnieje taki o podanej nazwie
+                    if (tag == null)
+                    {
+                        Console.WriteLine("Dany Tag nie istnieje!");
+                        break;
+                    }
 
+                    Console.WriteLine("Podaj id Notatki, z której zostanie usunięty ten Tag:");
+                    command = Console.ReadLine();
 
+                    // Podane ID musi być liczbą
+                    if (int.TryParse(command, out _) == false)
+                    {
+                        Console.WriteLine("Podano niewłaściwe ID");
+                        break;
+                    }
 
+                    // Próba znalezienia Notatki
+                    notatka = menedzerNotatek.WyszukajNotatke(int.Parse(command));
+                    if (notatka == null)
+                    {
+                        Console.WriteLine("Notatka o danym ID nie istnieje");
+                        break;
+                    }
 
+                    // Właściwe usunięcie podanego Tagu z Notatki
+                    wynik = menedzerNotatek.UsunTagZNotatki(notatka, tag);
+
+                    Console.WriteLine($"Usunięcie tagu \"{tag.nazwa}\" z Notatki o ID={notatka.id} zakończyło się: {wynik}");
+
+                    break;
+
+                // Usuń Tag z Zadania
+                case "9":
+                    Console.WriteLine("Podaj nazwę Tagu do usunięcia:");
+                    command = Console.ReadLine();
+
+                    // Zmienna pomocnicza przechowująca wskaźnik na dany Tag
+                    tag = menedzerTagow.ZwrocTag(command);
+                    // Utworzenie nowego Tagu jeśli nie istnieje taki o podanej nazwie
+                    if (tag == null)
+                    {
+                        Console.WriteLine("Dany Tag nie istnieje!");
+                        break;
+                    }
+
+                    Console.WriteLine("Podaj id Zadania, z którego zostanie usunięty ten Tag:");
+                    command = Console.ReadLine();
+
+                    // Podane ID musi być liczbą
+                    if (int.TryParse(command, out _) == false)
+                    {
+                        Console.WriteLine("Podano niewłaściwe ID");
+                        break;
+                    }
+
+                    // Próba znalezienia Zadania
+                    zadanie = menedzerZadan.WyszukajZadanie(int.Parse(command));
+                    if (zadanie == null)
+                    {
+                        Console.WriteLine("Notatka o danym ID nie istnieje");
+                        break;
+                    }
+
+                    // Właściwe usunięcie podanego Tagu z Notatki
+                    wynik = menedzerZadan.UsunTagZZadania(zadanie, tag);
+
+                    Console.WriteLine($"Usunięcie tagu \"{tag.nazwa}\" z Zadania o ID={zadanie.id} zakończyło się: {wynik}");
+
+                    break;
 
                 // Dodanie nowej notatki
                 case "10":
@@ -254,45 +340,42 @@ public partial class Program
 
                     break;
 
-                // Wypisz wybraną Notatkę z jej tagami
+                // Wypisz Notatki wraz z ich tagami
                 case "14":
-                    Console.WriteLine("Podaj ID Notatki do wypisania:");
-                    command = Console.ReadLine();
-                    Notatka not = menedzerNotatek.WyszukajNotatke(Int32.Parse(command));
-
-                    // DekoratorTagowy danej Notatki
-                    DekoratorWpisow deko = new DekoratorTagowy(not);
-                    // Wywołanie metody Dekoratora, który dodaje informacje o tagach danej Notatki do WypiszInformacje()
-                    Console.WriteLine( deko.WypiszInformacje() );  
-
+                    // Pętla przez wszystkie Notatki w MenedzerNotatek
+                    foreach (Notatka not in menedzerNotatek.Notatki)
+                    {
+                        // DekoratorTagowy danej Notatki
+                        DekoratorWpisow deko = new DekoratorTagowy(not);
+                        // Wywołanie metody Dekoratora, który dodaje informacje o tagach danej Notatki do WypiszInformacje()
+                        Console.WriteLine(deko.WypiszInformacje());
+                    }
 
                     break;
 
-                // Wypisz wybrane Zadanie z jego tagami
+                // Wypisz Zadania wraz z jego tagami
                 case "15":
-                    Console.WriteLine("Podaj ID Zadania do wypisania:");
-                    command = Console.ReadLine();
-                    Zadanie zada = menedzerZadan.WyszukajZadanie(Int32.Parse(command));
-
-                    // DekoratorTagowy danego Zadania
-                    deko = new DekoratorTagowy(zada);
-                    // Wywołanie metody Dekoratora, który dodaje informacje o tagach danego Zadania do WypiszInformacje()
-                    Console.WriteLine(deko.WypiszInformacje());
-
+                    // Pętla przez wszystkie Zadania w MenedzerZadan
+                    foreach (Zadanie zada in menedzerZadan.Zadania)
+                    {
+                        // DekoratorTagowy danej Notatki
+                        DekoratorWpisow deko = new DekoratorTagowy(zada);
+                        // Wywołanie metody Dekoratora, który dodaje informacje o tagach danej Notatki do WypiszInformacje()
+                        Console.WriteLine(deko.WypiszInformacje());
+                    }
 
                     break;
 
-                // Wypisz wybrane Zadanie z jego stanem
+                // Wypisz Zadania z ich stanami
                 case "16":
-                    Console.WriteLine("Podaj ID Zadania do wypisania:");
-                    command = Console.ReadLine();
-                    zada = menedzerZadan.WyszukajZadanie(Int32.Parse(command));
-
-                    // DekoratorStanowy danego Zadania
-                    deko = new DekoratorStanowy(zada);
-                    // Wywołanie metody Dekoratora, który dodaje informacje o stanie danego Zadania do WypiszInformacje()
-                    Console.WriteLine(deko.WypiszInformacje());
-
+                    // Pętla przez wszystkie Zadania w MenedzerZadan
+                    foreach (Zadanie zada in menedzerZadan.Zadania)
+                    {
+                        // DekoratorStanowy danej Notatki
+                        DekoratorStanowy deko = new DekoratorStanowy(zada);
+                        // Wywołanie metody Dekoratora, który dodaje informacje o tagach danej Notatki do WypiszInformacje()
+                        Console.WriteLine(deko.WypiszInformacje());
+                    }
 
                     break;
 

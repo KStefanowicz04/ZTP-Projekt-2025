@@ -214,6 +214,10 @@ public partial class Program
         private static MenedzerZadan instancja;  // Singleton; instancja Fabryki Zadañ
         private FabrykaZadan fabryka;  // WskaŸnik na Fabrykê zadañ
         private List<Zadanie> zadania;  // Lista wszystkich Zadañ w programie
+        public List<Zadanie> Zadania  // Publiczny getter
+        {
+            get { return zadania; }
+        }
         private HashSet<int> IDZadan = new();  // HashSet unikalnych ID Zadañ. ID siê nie powtarzaj¹.
 
 
