@@ -74,7 +74,14 @@ public partial class Program
             }
 
             // W³aœciwe utworzenie Notatki
-            return new Notatka(tytul, tresc, tagi);
+            Notatka notatka = new Notatka(tytul, tresc, tagi);
+            // Dodanie Notatki do listy Notatek wszystkich wybranych Tagów
+            foreach(Tag tag in tagi)
+            {
+                tag.DodajNotatke(notatka);
+            }
+
+            return notatka;
         }
     }
 
@@ -83,7 +90,6 @@ public partial class Program
     // Zarz¹dza wszystkimi notatkami w systemie
     public class MenedzerNotatek
     {
-
         private static MenedzerNotatek instancja;  // Statyczna instancja Singletona        
         private FabrykaNotatek fabryka;  // Fabryka do tworzenia notatek
         private List<Notatka> notatki;  // Lista wszystkich notatek w systemie
@@ -139,6 +145,12 @@ public partial class Program
         {
             if (notatki.Remove(notatka))
             {
+                // Usuniêcie danej Notatki z Listy Notatek Tagów przypisanych do danej Notatki
+                foreach(Tag tag in notatka.tagi)
+                {
+                    tag.UsunNotatke(notatka);
+                }
+
                 Console.WriteLine("Usuniêto notatkê:");
                 WypiszNotatke(notatka);
             }

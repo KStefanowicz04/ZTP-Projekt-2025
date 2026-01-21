@@ -272,6 +272,12 @@ public partial class Program
         {
             if (zadania.Remove(zadanie))
             {
+                // Usuniêcie danej Notatki z Listy Notatek Tagów przypisanych do danej Notatki
+                foreach (Tag tag in zadanie.tagi)
+                {
+                    tag.UsunZadanie(zadanie);
+                }
+
                 Console.WriteLine("Usuniêto zadanie:");
                 WypiszZadanie(zadanie);
             }
@@ -415,15 +421,7 @@ public partial class Program
     public class FabrykaZadan : FabrykaWpisow
     {
         // Konstruktor
-        public FabrykaZadan() : base()
-        {
-
-        }
-
-
-
-
-
+        public FabrykaZadan() : base() { }
 
 
         // Nadpisanie metody fabrykuj¹cej wpis
@@ -448,8 +446,17 @@ public partial class Program
 
             IStanZadania domyslnyStan = new StanAktywne();
 
-            // Utworzenie i zwrócenie nowego Zadania na podstawie powy¿szych danych
-            return new Zadanie(tytul, tresc, domyslnyStan, priorytet, termin, tagi);
+
+            // W³aœciwe utworzenie Zadania na podstawie powy¿szych danych
+            Zadanie zadanie = new Zadanie(tytul, tresc, domyslnyStan, priorytet, termin, tagi);
+            // Dodanie Zadania do listy Zadañ wszystkich wybranych Tagów
+            foreach (Tag tag in tagi)
+            {
+                tag.DodajZadanie(zadanie);
+            }
+
+            // Utworzenie i zwrócenie nowego Zadania 
+            return zadanie;
         }
 
        

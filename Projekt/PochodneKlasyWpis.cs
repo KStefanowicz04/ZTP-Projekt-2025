@@ -66,6 +66,9 @@ public partial class Program
         // Zwraca true jeśli usunięcie było sukcesem.
         public bool UsunTag(Tag tag)
         {
+            // Również usuwa dany Wpis z Listy Notatek/Zadań danego Tagu
+            // TUTAJ
+
             return tagi.Remove(tag);
         }
 
