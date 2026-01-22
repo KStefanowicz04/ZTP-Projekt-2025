@@ -1,4 +1,5 @@
-public partial class Zadanie
+public class partial Program {
+public class Zadanie
 {
     public string Tytuł { get; set; }
     public string Treść { get; set; }
@@ -69,4 +70,5 @@ public class ZadanieBuilder : IZadanieBuilder
         _zadanie = new Zadanie();
         return wynik;
     }
+}
 }
